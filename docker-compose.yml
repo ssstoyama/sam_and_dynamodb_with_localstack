@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  localstack:
+    container_name: localstack_main
+    hostname: localstack
+    image: localstack/localstack
+    ports:
+      - 4566:4566 # LocalStack と 4566 番ポートで通信する
+    environment:
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./setup:/etc/localstack/init/ready.d" # 初期化スクリプトを置く場所
+    networks:
+      - lstack # SAM と通信するために必要
+
+# SAM と通信するために必要
+networks:
+  lstack:
+    name: lstack

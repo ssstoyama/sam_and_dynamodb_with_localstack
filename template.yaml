@@ -1,0 +1,47 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Function:
+    Runtime: go1.x
+    Timeout: 15
+    Environment:
+      Variables:
+        AWS_REGION: ap-northeast-1
+        AWS_ENDPOINT: http://localstack:4566
+
+Resources:
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: local
+ 
+  ScanSample:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/scan-sample/
+      Handler: main
+      Events:
+        Api:
+          Type: Api 
+          Properties:
+            Path: /data
+            Method: GET
+            RestApiId: !Ref ApiGateway
+
+  GetObjectSample:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/get-object-sample/
+      Handler: main
+      Events:
+        Api:
+          Type: Api 
+          Properties:
+            Path: /file
+            Method: GET
+            RestApiId: !Ref ApiGateway
+
+Outputs:
+  RestApiId:
+    Value: !Sub ${ApiGateway}
